@@ -1,4 +1,5 @@
 import bcrypt from "bcryptjs";
+import jwt from "jsonwebtoken";
 import User from "../models/user.js";
 
 export const register = async (req, res) => {
@@ -60,6 +61,75 @@ export const register = async (req, res) => {
     });
   } catch (error) {
     console.error("Lỗi đăng ký:", error.message);
+    return res.status(500).json({
+      message: "Lỗi server",
+      success: false,
+    });
+  }
+};
+
+export const login = async (req, res) => {
+  try {
+    // Giải nén dữ liệu và kiểm tra tính hợp lệ
+    const { email, password } = req.body;
+
+    // Kiểm tra email và password có được nhập
+    if (!email || !password) {
+      return res.status(400).json({
+        message: "Vui lòng nhập email và mật khẩu",
+        success: false,
+      });
+    }
+
+    // Tìm kiếm người dùng theo email
+    const user = await User.findOne({ email });
+
+    if (!user) {
+      return res.status(400).json({
+        message: "Email không tồn tại",
+        success: false,
+      });
+    }
+
+    // So sánh mật khẩu với bcrypt
+    const isMatch = await bcrypt.compare(password, user.password);
+
+    if (!isMatch) {
+      return res.status(400).json({
+        message: "Invalid Credentials",
+        success: false,
+      });
+    }
+
+    // Tạo JWT token
+    const token = jwt.sign(
+      { email: user.email, id: user._id },
+      process.env.JWT_SECRET || "default_secret_key",
+      { expiresIn: "30d" },
+    );
+
+    // Thiết lập Cookie
+    const cookieOptions = {
+      httpOnly: true,
+      maxAge: 30 * 24 * 60 * 60 * 1000, // 30 ngày
+      sameSite: "strict",
+    };
+
+    // Thêm secure chỉ khi ở production
+    if (process.env.NODE_ENV === "production") {
+      cookieOptions.secure = true;
+    }
+
+    res.cookie("taskify_user_token", token, cookieOptions);
+
+    // Phản hồi thành công
+    return res.status(200).json({
+      message: "Login Success",
+      success: true,
+      token,
+    });
+  } catch (error) {
+    console.error("Lỗi đăng nhập:", error.message);
     return res.status(500).json({
       message: "Lỗi server",
       success: false,

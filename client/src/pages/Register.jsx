@@ -1,9 +1,11 @@
 import axios from "axios";
+import { Eye, EyeOff } from "lucide-react";
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 
 const Register = () => {
   const navigate = useNavigate();
+  const [showPassword, setShowPassword] = useState(false);
   const [values, setValues] = useState({
     email: "",
     password: "",
@@ -19,7 +21,7 @@ const Register = () => {
     e.preventDefault();
     try {
       const response = await axios.post(
-        "http://localhost:3000/api/v1/register",
+        "http://localhost:1000/api/v1/users/register",
         values,
       );
       if (response.data.success) {
@@ -97,16 +99,26 @@ const Register = () => {
               >
                 Mật khẩu
               </label>
-              <input
-                className="px-4 py-3 border border-gray-300 focus:border-blue-500 rounded-lg outline-none focus:ring-2 focus:ring-blue-200 w-full placeholder:text-gray-400 transition-all duration-200"
-                id="password"
-                name="password"
-                onChange={change}
-                placeholder="Nhập mật khẩu của bạn"
-                required
-                type="password"
-                value={values.password}
-              />
+              <div className="relative">
+                <input
+                  className="px-4 py-3 pr-11 border border-gray-300 focus:border-blue-500 rounded-lg outline-none focus:ring-2 focus:ring-blue-200 w-full placeholder:text-gray-400 transition-all duration-200"
+                  id="password"
+                  name="password"
+                  onChange={change}
+                  placeholder="Nhập mật khẩu của bạn"
+                  required
+                  type={showPassword ? "text" : "password"}
+                  value={values.password}
+                />
+                <button
+                  aria-label={showPassword ? "Ẩn mật khẩu" : "Hiện mật khẩu"}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700 p-1 rounded focus:outline-none focus:ring-2 focus:ring-blue-200"
+                  onClick={() => setShowPassword((prev) => !prev)}
+                  type="button"
+                >
+                  {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+                </button>
+              </div>
             </div>
 
             {/* Nút đăng ký */}

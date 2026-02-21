@@ -5,7 +5,7 @@ import Register from "./pages/Register";
 function App() {
   return (
     <Routes>
-      <Route element={<Navigate replace to="/register" />} path="/" />
+      <Route element={<Navigate replace to="/login" />} path="/" />
       <Route element={<Register />} path="/register" />
       <Route element={<Login />} path="/login" />
     </Routes>
