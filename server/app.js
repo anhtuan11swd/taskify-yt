@@ -1,11 +1,18 @@
 import dotenv from "dotenv";
 import express from "express";
 import connectDB from "./connection.js";
+import userRoutes from "./controllers/user.js";
 
 dotenv.config();
 connectDB();
 
 const app = express();
+
+// Middleware để parse JSON
+app.use(express.json());
+
+// Routes
+app.use("/api/v1/users", userRoutes);
 
 app.get("/", (_req, res) => res.send("Xin chào từ backend"));
 
