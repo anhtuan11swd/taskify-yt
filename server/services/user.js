@@ -1,3 +1,4 @@
+import bcrypt from "bcryptjs";
 import User from "../models/user.js";
 
 export const register = async (req, res) => {
@@ -39,10 +40,13 @@ export const register = async (req, res) => {
       });
     }
 
+    // Mã hóa mật khẩu
+    const hashPass = await bcrypt.hash(password, 10);
+
     // Tạo người dùng mới
     const newUser = new User({
       email,
-      password,
+      password: hashPass,
       username,
     });
 
