@@ -154,3 +154,59 @@ export const logout = async (_req, res) => {
     });
   }
 };
+
+export const getUserDetails = async (req, res) => {
+  try {
+    // Truy vấn dữ liệu người dùng với tasks đã populate và loại bỏ password
+    const user = await User.findById(req.user._id)
+      .populate("tasks")
+      .select("-password");
+
+    if (!user) {
+      return res.status(404).json({
+        message: "Không tìm thấy người dùng",
+        success: false,
+      });
+    }
+
+    // Phân loại trạng thái tác vụ
+    const yetToStart = [];
+    const inProgress = [];
+    const complete = [];
+
+    // Lặp qua mảng tác vụ và phân loại theo status
+    user.tasks.forEach((task) => {
+      if (task.status === "chưa bắt đầu") {
+        yetToStart.push(task);
+      } else if (task.status === "đang thực hiện") {
+        inProgress.push(task);
+      } else if (task.status === "hoàn thành") {
+        complete.push(task);
+      }
+    });
+
+    // Trả về phản hồi thành công với dữ liệu đã phân loại
+    return res.status(200).json({
+      data: {
+        tasks: {
+          complete,
+          inProgress,
+          yetToStart,
+        },
+        user: {
+          _id: user._id,
+          email: user.email,
+          username: user.username,
+        },
+      },
+      message: "Lấy thông tin người dùng thành công",
+      success: true,
+    });
+  } catch (error) {
+    console.error("Lỗi lấy thông tin người dùng:", error.message);
+    return res.status(500).json({
+      message: "Lỗi server",
+      success: false,
+    });
+  }
+};

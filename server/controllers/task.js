@@ -1,8 +1,17 @@
 import express from "express";
 import authenticate from "../middleware.js";
-import { addTask, deleteTask, editTask, getTask } from "../services/task.js";
+import {
+  addTask,
+  deleteTask,
+  editTask,
+  getAllTasks,
+  getTask,
+} from "../services/task.js";
 
 const router = express.Router();
+
+// GET / - Lấy tất cả task (cần auth)
+router.get("/", authenticate, getAllTasks);
 
 // POST /add-task - Thêm task mới (cần auth)
 router.post("/add-task", authenticate, addTask);

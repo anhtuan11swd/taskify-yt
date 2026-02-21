@@ -1,5 +1,23 @@
 import Task from "../models/task.js";
 
+// Lấy tất cả tác vụ
+export const getAllTasks = async (_req, res) => {
+  try {
+    const tasks = await Task.find({}).sort({ createdAt: -1 });
+
+    return res.status(200).json({
+      success: true,
+      tasks,
+    });
+  } catch (error) {
+    console.error("Lỗi lấy danh sách task:", error.message);
+    return res.status(500).json({
+      message: "Lỗi server",
+      success: false,
+    });
+  }
+};
+
 // Thêm tác vụ mới
 export const addTask = async (req, res) => {
   try {
