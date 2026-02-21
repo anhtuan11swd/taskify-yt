@@ -1,14 +1,49 @@
 import axios from "axios";
-import { useState } from "react";
-import { FaTimes } from "react-icons/fa";
+import { useEffect, useState } from "react";
+import { FaTimes, FaTrash } from "react-icons/fa";
 
-const EditTask = ({ task, setEditTaskDiv, onTaskUpdated }) => {
+const EditTask = ({ taskId, setEditTaskDiv, onTaskUpdated, onTaskDeleted }) => {
   const [taskData, setTaskData] = useState({
-    description: task?.description || "",
-    priority: task?.priority || "thấp",
-    status: task?.status || "chưa bắt đầu",
-    title: task?.title || "",
+    description: "",
+    priority: "thấp",
+    status: "chưa bắt đầu",
+    title: "",
   });
+  const [loading, setLoading] = useState(true);
+
+  // Lấy dữ liệu task từ API khi component được mount
+  useEffect(() => {
+    const fetchTaskData = async () => {
+      if (!taskId) {
+        setLoading(false);
+        return;
+      }
+
+      try {
+        const response = await axios.get(
+          `http://localhost:1000/api/v1/tasks/get-task/${taskId}`,
+          { withCredentials: true },
+        );
+
+        if (response.data.success && response.data.task) {
+          const task = response.data.task;
+          setTaskData({
+            description: task.description || "",
+            priority: task.priority || "thấp",
+            status: task.status || "chưa bắt đầu",
+            title: task.title || "",
+          });
+        }
+      } catch (error) {
+        console.error("Lỗi khi lấy dữ liệu task:", error);
+        alert("Không thể lấy dữ liệu task. Vui lòng thử lại.");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchTaskData();
+  }, [taskId]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -18,15 +53,22 @@ const EditTask = ({ task, setEditTaskDiv, onTaskUpdated }) => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
+    if (!taskId) {
+      alert("Không tìm thấy ID task.");
+      return;
+    }
+
     try {
       const response = await axios.put(
-        `http://localhost:1000/api/v1/tasks/edit-task/${task._id}`,
+        `http://localhost:1000/api/v1/tasks/edit-task/${taskId}`,
         taskData,
         { withCredentials: true },
       );
 
       if (response.data.success) {
-        alert("Task đã được cập nhật thành công!");
+        alert("Task đã được cập nhật!");
+        // Xóa editTaskId khỏi sessionStorage
+        sessionStorage.removeItem("editTaskId");
         setEditTaskDiv("none");
         // Gọi callback để cập nhật danh sách task
         if (onTaskUpdated) {
@@ -41,11 +83,59 @@ const EditTask = ({ task, setEditTaskDiv, onTaskUpdated }) => {
     }
   };
 
+  const handleDelete = async () => {
+    if (!taskId) {
+      alert("Không tìm thấy ID task.");
+      return;
+    }
+
+    // Xác nhận trước khi xóa
+    const confirmDelete = window.confirm(
+      "Bạn có chắc chắn muốn xóa task này không?",
+    );
+    if (!confirmDelete) return;
+
+    try {
+      const response = await axios.delete(
+        `http://localhost:1000/api/v1/tasks/delete-task/${taskId}`,
+        { withCredentials: true },
+      );
+
+      if (response.data.success) {
+        alert("Task đã được xóa!");
+        // Xóa editTaskId khỏi sessionStorage
+        sessionStorage.removeItem("editTaskId");
+        setEditTaskDiv("none");
+        // Gọi callback để cập nhật danh sách task
+        if (onTaskDeleted) {
+          onTaskDeleted();
+        }
+      } else {
+        alert(`Lỗi: ${response.data.message}`);
+      }
+    } catch (error) {
+      console.error("Lỗi khi xóa task:", error);
+      alert("Có lỗi xảy ra khi xóa task. Vui lòng thử lại.");
+    }
+  };
+
   const handleClose = () => {
+    // Xóa editTaskId khỏi sessionStorage khi đóng modal
+    sessionStorage.removeItem("editTaskId");
     setEditTaskDiv("none");
   };
 
-  if (!task) return null;
+  if (loading) {
+    return (
+      <div className="z-50 fixed inset-0 flex justify-center items-center bg-black/85">
+        <div className="bg-white shadow-2xl p-6 rounded-xl w-full max-w-md">
+          <div className="flex justify-center items-center py-8">
+            <div className="border-blue-600 border-b-2 rounded-full w-8 h-8 animate-spin" />
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="z-50 fixed inset-0 flex justify-center items-center bg-black/85">
@@ -53,7 +143,7 @@ const EditTask = ({ task, setEditTaskDiv, onTaskUpdated }) => {
         {/* Close Button */}
         <button
           aria-label="Đóng modal"
-          className="top-4 right-4 absolute text-gray-500 hover:text-gray-700 cursor-pointer"
+          className="top-4 right-4 absolute text-gray-500 hover:text-gray-700 transition-colors duration-200 cursor-pointer"
           onClick={handleClose}
           type="button"
         >
@@ -148,7 +238,7 @@ const EditTask = ({ task, setEditTaskDiv, onTaskUpdated }) => {
           </div>
 
           {/* Buttons */}
-          <div className="flex gap-4 mt-2">
+          <div className="flex gap-3 mt-2">
             <button
               className="flex-1 bg-blue-600 hover:bg-blue-700 px-4 py-3 rounded-lg font-semibold text-white transition-colors duration-200 cursor-pointer"
               type="submit"
@@ -163,6 +253,16 @@ const EditTask = ({ task, setEditTaskDiv, onTaskUpdated }) => {
               Hủy
             </button>
           </div>
+
+          {/* Delete Button */}
+          <button
+            className="flex justify-center items-center gap-2 hover:bg-red-50 mt-2 px-4 py-3 border-2 border-red-500 rounded-lg w-full font-semibold text-red-500 transition-colors duration-200 cursor-pointer"
+            onClick={handleDelete}
+            type="button"
+          >
+            <FaTrash size={16} />
+            Xóa Task
+          </button>
         </form>
       </div>
     </div>
