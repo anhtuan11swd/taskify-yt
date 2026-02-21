@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import StackTitle from "./StackTitle";
 import TaskCard from "./TaskCard";
 
-const YetToStart = () => {
+const YetToStart = ({ onEditTask }) => {
   const [tasks, setTasks] = useState([]);
 
   useEffect(() => {
@@ -51,7 +51,9 @@ const YetToStart = () => {
   };
 
   const handleEdit = (task) => {
-    console.log("Chỉnh sửa task:", task);
+    if (onEditTask) {
+      onEditTask(task);
+    }
   };
 
   return (

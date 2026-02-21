@@ -2,22 +2,13 @@ import axios from "axios";
 import { useState } from "react";
 import { FaTimes } from "react-icons/fa";
 
-const AddTask = ({ setAddTaskDiv, onTaskAdded }) => {
+const EditTask = ({ task, setEditTaskDiv, onTaskUpdated }) => {
   const [taskData, setTaskData] = useState({
-    description: "",
-    priority: "thấp",
-    status: "chưa bắt đầu",
-    title: "",
+    description: task?.description || "",
+    priority: task?.priority || "thấp",
+    status: task?.status || "chưa bắt đầu",
+    title: task?.title || "",
   });
-
-  const resetForm = () => {
-    setTaskData({
-      description: "",
-      priority: "thấp",
-      status: "chưa bắt đầu",
-      title: "",
-    });
-  };
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -28,32 +19,33 @@ const AddTask = ({ setAddTaskDiv, onTaskAdded }) => {
     e.preventDefault();
 
     try {
-      const response = await axios.post(
-        "http://localhost:1000/api/v1/tasks/add-task",
+      const response = await axios.put(
+        `http://localhost:1000/api/v1/tasks/edit-task/${task._id}`,
         taskData,
         { withCredentials: true },
       );
 
       if (response.data.success) {
-        alert("Task đã được thêm thành công!");
-        setAddTaskDiv("none");
+        alert("Task đã được cập nhật thành công!");
+        setEditTaskDiv("none");
         // Gọi callback để cập nhật danh sách task
-        if (onTaskAdded) {
-          onTaskAdded();
+        if (onTaskUpdated) {
+          onTaskUpdated();
         }
       } else {
         alert(`Lỗi: ${response.data.message}`);
       }
     } catch (error) {
-      console.error("Lỗi khi thêm task:", error);
-      alert("Có lỗi xảy ra khi thêm task. Vui lòng thử lại.");
+      console.error("Lỗi khi cập nhật task:", error);
+      alert("Có lỗi xảy ra khi cập nhật task. Vui lòng thử lại.");
     }
   };
 
   const handleClose = () => {
-    resetForm();
-    setAddTaskDiv("none");
+    setEditTaskDiv("none");
   };
+
+  if (!task) return null;
 
   return (
     <div className="z-50 fixed inset-0 flex justify-center items-center bg-black/85">
@@ -69,7 +61,9 @@ const AddTask = ({ setAddTaskDiv, onTaskAdded }) => {
         </button>
 
         {/* Title */}
-        <h2 className="mb-6 font-bold text-gray-800 text-2xl">Thêm Task Mới</h2>
+        <h2 className="mb-6 font-bold text-gray-800 text-2xl">
+          Chỉnh sửa Task
+        </h2>
 
         {/* Form */}
         <form className="flex flex-col gap-4" onSubmit={handleSubmit}>
@@ -77,13 +71,13 @@ const AddTask = ({ setAddTaskDiv, onTaskAdded }) => {
           <div className="flex flex-col gap-2">
             <label
               className="font-medium text-gray-700 text-sm"
-              htmlFor="title"
+              htmlFor="edit-title"
             >
               Tiêu đề
             </label>
             <input
               className="px-4 py-3 border border-gray-300 focus:border-blue-500 rounded-lg outline-none focus:ring-2 focus:ring-blue-200 w-full placeholder:text-gray-400 transition-all duration-200"
-              id="title"
+              id="edit-title"
               name="title"
               onChange={handleChange}
               placeholder="Nhập tên nhiệm vụ"
@@ -97,13 +91,13 @@ const AddTask = ({ setAddTaskDiv, onTaskAdded }) => {
           <div className="flex flex-col gap-2">
             <label
               className="font-medium text-gray-700 text-sm"
-              htmlFor="priority"
+              htmlFor="edit-priority"
             >
               Độ ưu tiên
             </label>
             <select
               className="px-4 py-3 border border-gray-300 focus:border-blue-500 rounded-lg outline-none focus:ring-2 focus:ring-blue-200 w-full transition-all duration-200 cursor-pointer"
-              id="priority"
+              id="edit-priority"
               name="priority"
               onChange={handleChange}
               value={taskData.priority}
@@ -118,13 +112,13 @@ const AddTask = ({ setAddTaskDiv, onTaskAdded }) => {
           <div className="flex flex-col gap-2">
             <label
               className="font-medium text-gray-700 text-sm"
-              htmlFor="status"
+              htmlFor="edit-status"
             >
               Trạng thái
             </label>
             <select
               className="px-4 py-3 border border-gray-300 focus:border-blue-500 rounded-lg outline-none focus:ring-2 focus:ring-blue-200 w-full transition-all duration-200 cursor-pointer"
-              id="status"
+              id="edit-status"
               name="status"
               onChange={handleChange}
               value={taskData.status}
@@ -139,13 +133,13 @@ const AddTask = ({ setAddTaskDiv, onTaskAdded }) => {
           <div className="flex flex-col gap-2">
             <label
               className="font-medium text-gray-700 text-sm"
-              htmlFor="description"
+              htmlFor="edit-description"
             >
               Mô tả
             </label>
             <textarea
               className="px-4 py-3 border border-gray-300 focus:border-blue-500 rounded-lg outline-none focus:ring-2 focus:ring-blue-200 w-full h-24 placeholder:text-gray-400 transition-all duration-200 resize-none"
-              id="description"
+              id="edit-description"
               name="description"
               onChange={handleChange}
               placeholder="Nhập chi tiết nội dung công việc"
@@ -159,7 +153,7 @@ const AddTask = ({ setAddTaskDiv, onTaskAdded }) => {
               className="flex-1 bg-blue-600 hover:bg-blue-700 px-4 py-3 rounded-lg font-semibold text-white transition-colors duration-200 cursor-pointer"
               type="submit"
             >
-              Thêm Task
+              Lưu thay đổi
             </button>
             <button
               className="flex-1 hover:bg-gray-100 px-4 py-3 border-2 border-black rounded-lg font-semibold text-black transition-colors duration-200 cursor-pointer"
@@ -175,4 +169,4 @@ const AddTask = ({ setAddTaskDiv, onTaskAdded }) => {
   );
 };
 
-export default AddTask;
+export default EditTask;

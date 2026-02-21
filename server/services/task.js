@@ -73,7 +73,7 @@ export const editTask = async (req, res) => {
     const updatedTask = await Task.findByIdAndUpdate(
       id,
       { description, priority, status, title },
-      { new: true, runValidators: true },
+      { returnDocument: "after", runValidators: true },
     );
 
     if (!updatedTask) {
