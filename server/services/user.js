@@ -136,3 +136,21 @@ export const login = async (req, res) => {
     });
   }
 };
+
+export const logout = async (_req, res) => {
+  try {
+    // Xóa cookie taskifyUserToken
+    res.clearCookie("taskify_user_token");
+
+    return res.status(200).json({
+      message: "Logout Success",
+      success: true,
+    });
+  } catch (error) {
+    console.error("Lỗi đăng xuất:", error.message);
+    return res.status(500).json({
+      message: "Lỗi server",
+      success: false,
+    });
+  }
+};

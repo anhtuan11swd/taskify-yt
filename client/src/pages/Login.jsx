@@ -24,8 +24,8 @@ const Login = () => {
         values,
       );
       if (response.data.success) {
-        alert("Đăng nhập thành công!");
-        navigate("/");
+        localStorage.setItem("userLoggedIn", "true");
+        navigate("/dashboard");
       }
     } catch (error) {
       const message =
@@ -91,7 +91,7 @@ const Login = () => {
                 />
                 <button
                   aria-label={showPassword ? "Ẩn mật khẩu" : "Hiện mật khẩu"}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700 p-1 rounded focus:outline-none focus:ring-2 focus:ring-blue-200"
+                  className="top-1/2 right-3 absolute p-1 rounded focus:outline-none focus:ring-2 focus:ring-blue-200 text-gray-500 hover:text-gray-700 -translate-y-1/2"
                   onClick={() => setShowPassword((prev) => !prev)}
                   type="button"
                 >
