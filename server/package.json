@@ -1,0 +1,25 @@
+{
+  "author": "Trần Anh Tuấn",
+  "dependencies": {
+    "express": "^5.2.1",
+    "nodemon": "^3.1.14"
+  },
+  "description": "",
+  "devDependencies": {
+    "@biomejs/biome": "2.4.4"
+  },
+  "keywords": [],
+  "license": "ISC",
+  "main": "app.js",
+  "name": "server",
+  "scripts": {
+    "check": "biome check --write",
+    "check2": "biome check --write --unsafe",
+    "dev": "nodemon app.js",
+    "format": "biome format --write",
+    "lint": "biome lint --write",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "type": "module",
+  "version": "1.0.0"
+}
