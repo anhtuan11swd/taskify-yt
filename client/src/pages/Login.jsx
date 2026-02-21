@@ -2,12 +2,11 @@ import axios from "axios";
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 
-const Register = () => {
+const Login = () => {
   const navigate = useNavigate();
   const [values, setValues] = useState({
     email: "",
     password: "",
-    username: "",
   });
 
   const change = (e) => {
@@ -15,16 +14,16 @@ const Register = () => {
     setValues((prev) => ({ ...prev, [name]: value }));
   };
 
-  const register = async (e) => {
+  const login = async (e) => {
     e.preventDefault();
     try {
       const response = await axios.post(
-        "http://localhost:3000/api/v1/register",
+        "http://localhost:3000/api/v1/login",
         values,
       );
       if (response.data.success) {
-        alert("Đăng ký thành công! Chào mừng bạn đến với Taskify.");
-        navigate("/login");
+        alert("Đăng nhập thành công!");
+        navigate("/");
       }
     } catch (error) {
       const message =
@@ -44,31 +43,11 @@ const Register = () => {
 
           {/* Tiêu đề phụ */}
           <h3 className="mb-8 text-gray-600 text-lg text-center">
-            Đăng ký với Taskify
+            Đăng nhập với Taskify
           </h3>
 
-          {/* Form đăng ký */}
-          <form className="flex flex-col gap-4" onSubmit={register}>
-            {/* Username */}
-            <div className="flex flex-col gap-2">
-              <label
-                className="font-medium text-gray-700 text-sm"
-                htmlFor="username"
-              >
-                Tên người dùng
-              </label>
-              <input
-                className="px-4 py-3 border border-gray-300 focus:border-blue-500 rounded-lg outline-none focus:ring-2 focus:ring-blue-200 w-full placeholder:text-gray-400 transition-all duration-200"
-                id="username"
-                name="username"
-                onChange={change}
-                placeholder="Nhập tên người dùng của bạn"
-                required
-                type="text"
-                value={values.username}
-              />
-            </div>
-
+          {/* Form đăng nhập */}
+          <form className="flex flex-col gap-4" onSubmit={login}>
             {/* Email */}
             <div className="flex flex-col gap-2">
               <label
@@ -109,23 +88,23 @@ const Register = () => {
               />
             </div>
 
-            {/* Nút đăng ký */}
+            {/* Nút đăng nhập */}
             <button
               className="bg-blue-800 hover:bg-blue-700 mt-2 px-4 py-3 rounded-lg focus:ring-4 focus:ring-blue-200 w-full font-semibold text-white transition-all duration-200 cursor-pointer"
               type="submit"
             >
-              Đăng ký
+              Đăng nhập
             </button>
           </form>
 
-          {/* Liên kết đến trang đăng nhập */}
+          {/* Liên kết đến trang đăng ký */}
           <p className="mt-6 text-gray-600 text-center">
-            Bạn đã có tài khoản?{" "}
+            Bạn chưa có tài khoản?{" "}
             <Link
               className="font-medium text-blue-600 hover:text-blue-700 hover:underline transition-colors duration-200 cursor-pointer"
-              to="/login"
+              to="/register"
             >
-              Đăng nhập
+              Đăng ký
             </Link>
           </p>
         </div>
@@ -134,4 +113,4 @@ const Register = () => {
   );
 };
 
-export default Register;
+export default Login;

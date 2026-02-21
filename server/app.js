@@ -1,3 +1,4 @@
+import cors from "cors";
 import dotenv from "dotenv";
 import express from "express";
 import connectDB from "./connection.js";
@@ -8,7 +9,8 @@ connectDB();
 
 const app = express();
 
-// Middleware để parse JSON
+// Middleware
+app.use(cors());
 app.use(express.json());
 
 // Routes
