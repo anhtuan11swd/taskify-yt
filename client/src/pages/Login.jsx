@@ -22,6 +22,7 @@ const Login = () => {
       const response = await axios.post(
         "http://localhost:1000/api/v1/users/login",
         values,
+        { withCredentials: true },
       );
       if (response.data.success) {
         localStorage.setItem("userLoggedIn", "true");

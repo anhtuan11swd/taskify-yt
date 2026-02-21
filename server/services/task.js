@@ -4,7 +4,6 @@ import Task from "../models/task.js";
 export const addTask = async (req, res) => {
   try {
     const { title, description, priority, status } = req.body;
-    const user = req.user;
 
     // Validation: Kiểm tra title và description không trống, tối thiểu 6 ký tự
     if (!title || title.length < 6) {
@@ -31,10 +30,6 @@ export const addTask = async (req, res) => {
 
     // Lưu vào database
     await newTask.save();
-
-    // Cập nhật mảng tasks của user
-    user.tasks.push(newTask._id);
-    await user.save();
 
     return res.status(201).json({
       message: "Thêm task thành công",

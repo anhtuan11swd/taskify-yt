@@ -1,11 +1,12 @@
+import axios from "axios";
 import { useState } from "react";
 import { FaTimes } from "react-icons/fa";
 
 const AddTask = ({ setAddTaskDiv }) => {
   const [taskData, setTaskData] = useState({
     description: "",
-    priority: "Low",
-    status: "Yet to start",
+    priority: "thấp",
+    status: "chưa bắt đầu",
     title: "",
   });
 
@@ -16,9 +17,24 @@ const AddTask = ({ setAddTaskDiv }) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    // TODO: Gọi API để thêm task
-    console.log("Task data:", taskData);
-    setAddTaskDiv("none");
+
+    try {
+      const response = await axios.post(
+        "http://localhost:1000/api/v1/tasks/add-task",
+        taskData,
+        { withCredentials: true },
+      );
+
+      if (response.data.success) {
+        alert("Task đã được thêm thành công!");
+        setAddTaskDiv("none");
+      } else {
+        alert(`Lỗi: ${response.data.message}`);
+      }
+    } catch (error) {
+      console.error("Lỗi khi thêm task:", error);
+      alert("Có lỗi xảy ra khi thêm task. Vui lòng thử lại.");
+    }
   };
 
   return (
@@ -74,9 +90,9 @@ const AddTask = ({ setAddTaskDiv }) => {
               onChange={handleChange}
               value={taskData.priority}
             >
-              <option value="Low">Thấp</option>
-              <option value="Medium">Trung bình</option>
-              <option value="High">Cao</option>
+              <option value="thấp">Thấp</option>
+              <option value="trung bình">Trung bình</option>
+              <option value="cao">Cao</option>
             </select>
           </div>
 
@@ -95,9 +111,9 @@ const AddTask = ({ setAddTaskDiv }) => {
               onChange={handleChange}
               value={taskData.status}
             >
-              <option value="Yet to start">Chưa bắt đầu</option>
-              <option value="In progress">Đang thực hiện</option>
-              <option value="Completed">Hoàn thành</option>
+              <option value="chưa bắt đầu">Chưa bắt đầu</option>
+              <option value="đang thực hiện">Đang thực hiện</option>
+              <option value="hoàn thành">Hoàn thành</option>
             </select>
           </div>
 
